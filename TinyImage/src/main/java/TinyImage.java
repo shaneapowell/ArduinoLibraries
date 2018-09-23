@@ -57,10 +57,15 @@ public class TinyImage
 	public TinyImage(String fileName, BufferedImage img) throws Exception
 	{
 		this.mFileName = fileName;
-		this.mVarName = fileName.substring(0, fileName.indexOf('.'));
+		this.mVarName = fileName;
 		this.mWidth = img.getWidth();
 		this.mHeight = img.getHeight();
 		this.mPixelCount = this.mWidth * this.mHeight;
+
+		this.mVarName = this.mVarName.substring(0, fileName.indexOf('.'));
+		this.mVarName = this.mVarName.replace('-', '_');
+		this.mVarName = this.mVarName.replace('+', '_');
+		this.mVarName = this.mVarName.replace('*', '_');
 
 		ImageSegment currentSegment = null;
 
@@ -151,7 +156,7 @@ public class TinyImage
 		out.print(NL);
 
 		/* Pallet */
-		out.print(String.format("const uint32_t pallet_data_%1$s[] PROGMEM = {", this.mVarName));
+		out.print(String.format("static const uint32_t pallet_data_%1$s[] PROGMEM = {", this.mVarName));
 		for (int index = 0; index < this.mPallet.size(); index++)
 		{
 			if (index % 10 == 0)
@@ -164,7 +169,7 @@ public class TinyImage
 		out.println(NL + "};" + NL);
 
 		/* Data */
-		out.print(String.format("const TinyImageData image_data_%1$s[] PROGMEM = {", this.mVarName));
+		out.print(String.format("static const TinyImageData image_data_%1$s[] PROGMEM = {", this.mVarName));
 		for (int index = 0; index < this.mSegments.size(); index++)
 		{
 			if (index % 10 == 0)
@@ -179,9 +184,10 @@ public class TinyImage
 		out.println(NL + "};" + NL);
 
 		/* Instance */
-		out.print(String.format("const TinyImage image_%1$s PROGMEM = { image_data_%1$s, %2$d,  pallet_data_%1$s, %3$d, %4$d }; ", 
+		out.print(String.format("const TinyImage image_%1$s PROGMEM = { image_data_%1$s, %2$d,  pallet_data_%1$s, %3$d, %4$d, %5$d }; ",
 								this.mVarName, 
-								this.mSegments.size(), 
+								this.mSegments.size(),
+								this.mPallet.size(),
 								this.mWidth, 
 								this.mHeight));
 		out.print(NL + NL);
